@@ -1,0 +1,47 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Build archive
+        working-directory: NimTrainer
+        run: |
+          xcodebuild archive \
+            -project NimTrainer.xcodeproj \
+            -scheme NimTrainer \
+            -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/NimTrainer.xcarchive" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO \
+            -allowProvisioningUpdates || true
+
+      - name: Package IPA
+        run: |
+          APP=$(find "$RUNNER_TEMP/NimTrainer.xcarchive" -name "*.app" | head -1)
+          mkdir -p Payload
+          cp -r "$APP" Payload/
+          zip -qr NimTrainer.ipa Payload
+          rm -rf Payload
+          echo "IPA size: $(du -sh NimTrainer.ipa | cut -f1)"
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: NimTrainer-ipa
+          path: NimTrainer.ipa
+          retention-days: 14
