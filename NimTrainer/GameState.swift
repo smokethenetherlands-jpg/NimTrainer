@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 struct MoveRecord: Identifiable {
     let id = UUID()
