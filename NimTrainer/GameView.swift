@@ -263,10 +263,9 @@ struct AnalysisPanelView: View {
                 binaryTable
 
                 if let hint = game.lastHint {
-                    let remain = game.piles[hint.pileIndex] - hint.amount
                     HStack(spacing: 8) {
                         Image(systemName: "lightbulb.fill").foregroundColor(.yellow)
-                        Text("Взять \(hint.amount) из кучки \(hint.pileIndex + 1) → останется \(remain)")
+                        Text("Взять \(hint.amount) из кучки \(hint.pileIndex + 1) → останется \(game.piles[hint.pileIndex] - hint.amount)")
                             .font(.subheadline).foregroundColor(.white)
                     }
                     .padding(10).background(Color.yellow.opacity(0.1)).cornerRadius(10)

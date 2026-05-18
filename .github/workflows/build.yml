@@ -15,6 +15,7 @@ jobs:
 
       - name: Build (no signing)
         run: |
+          set -o pipefail
           xcodebuild build \
             -project NimTrainer.xcodeproj \
             -scheme NimTrainer \
@@ -23,7 +24,13 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO
+            ONLY_ACTIVE_ARCH=NO \
+            2>&1 | tee /tmp/build.log | grep -E "(error:|warning:|Build succeeded|BUILD FAILED)" || true
+          if grep -q "BUILD FAILED" /tmp/build.log; then
+            echo "=== FULL ERROR LOG ==="
+            grep -A5 "error:" /tmp/build.log || true
+            exit 1
+          fi
 
       - name: Package IPA
         run: |

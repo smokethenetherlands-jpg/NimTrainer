@@ -159,11 +159,10 @@ struct SetupView: View {
                 sectionLabel("Уровень тренировки")
                 HStack(spacing: 8) {
                     ForEach(1...4, id: \.self) { lvl in
-                        let maxSize = [0, 7, 15, 31, 63][lvl]
                         Button { settings.trainingLevel = lvl } label: {
                             VStack(spacing: 3) {
                                 Text("Ур. \(lvl)").font(.caption.bold())
-                                Text("до \(maxSize)").font(.caption2)
+                                Text("до \([0, 7, 15, 31, 63][lvl])").font(.caption2)
                             }
                             .frame(maxWidth: .infinity).padding(.vertical, 10)
                             .background(settings.trainingLevel == lvl ? Color.yellow : Color.nimCardDark)

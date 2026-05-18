@@ -188,11 +188,12 @@ struct TrainingView: View {
                 Text("Выигрышного хода нет — XOR = 0. Любой ход передаёт выигрышную позицию сопернику.")
                     .font(.subheadline).foregroundColor(.blue)
                     .fixedSize(horizontal: false, vertical: true)
-            } else if !res.wasOptimal, let opt = res.optimalMove {
-                let remain = res.pilesBefore[opt.pileIndex] - opt.amount
-                Text("Оптимальный ход: взять \(opt.amount) из кучки \(opt.pileIndex + 1) → останется \(remain)")
-                    .font(.subheadline).foregroundColor(.orange)
-                    .fixedSize(horizontal: false, vertical: true)
+            } else if !res.wasOptimal {
+                if let opt = res.optimalMove {
+                    Text("Оптимальный ход: взять \(opt.amount) из кучки \(opt.pileIndex + 1) → останется \(res.pilesBefore[opt.pileIndex] - opt.amount)")
+                        .font(.subheadline).foregroundColor(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
         .padding(14).background(Color.nimCard).cornerRadius(16)
