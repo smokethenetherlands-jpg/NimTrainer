@@ -20,7 +20,8 @@ struct GameView: View {
             Spacer(minLength: 0)
         }
         .background(Color.nimBackground.ignoresSafeArea())
-        .safeAreaInset(edge: .bottom, spacing: 0) { bottomSection }
+        .safeAreaInset(edge: .bottom, spacing: 0) { tabBarView }
+        .overlay(alignment: .bottom) { expandablePanel }
         .overlay { if game.isGameOver { gameOverOverlay } }
         .navigationTitle("Nim")
         .navigationBarTitleDisplayMode(.inline)
@@ -128,7 +129,7 @@ struct GameView: View {
 
     // MARK: Bottom section
 
-    var bottomSection: some View {
+    var tabBarView: some View {
         VStack(spacing: 0) {
             Divider().background(Color.gray.opacity(0.25))
             HStack(spacing: 0) {
@@ -143,12 +144,19 @@ struct GameView: View {
                 }
             }
             .background(Color.nimCard)
+        }
+    }
 
-            if showAnalysis {
-                AnalysisPanelView(game: game).transition(.move(edge: .bottom).combined(with: .opacity))
-            } else if showHistory {
-                HistoryView(history: game.history).transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+    @ViewBuilder
+    var expandablePanel: some View {
+        if showAnalysis {
+            AnalysisPanelView(game: game)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding(.bottom, 50)
+        } else if showHistory {
+            HistoryView(history: game.history)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .padding(.bottom, 50)
         }
     }
 

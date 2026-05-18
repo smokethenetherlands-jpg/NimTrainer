@@ -141,9 +141,9 @@ struct SetupView: View {
 
                 Divider().background(Color.gray.opacity(0.3))
 
-                ForEach(settings.players.indices, id: \.self) { i in
-                    PlayerConfigRow(player: $settings.players[i])
-                    if i < settings.players.count - 1 {
+                ForEach($settings.players) { $player in
+                    PlayerConfigRow(player: $player)
+                    if player.id < settings.players.count {
                         Divider().background(Color.gray.opacity(0.2))
                     }
                 }
