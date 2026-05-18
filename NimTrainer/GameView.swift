@@ -21,6 +21,7 @@ struct GameView: View {
                 Spacer(minLength: 0)
             }
             .overlay(alignment: .bottom) { expandablePanel }
+            .clipped()
             tabBarView
         }
         .background(Color.nimBackground.ignoresSafeArea())
@@ -34,10 +35,10 @@ struct GameView: View {
     var expandablePanel: some View {
         if showAnalysis {
             AnalysisPanelView(game: game)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .transition(.opacity)
         } else if showHistory {
             HistoryView(history: game.history)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .transition(.opacity)
         }
     }
 
