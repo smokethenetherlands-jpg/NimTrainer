@@ -18,10 +18,16 @@ struct GameView: View {
             pilesArea
             movePanel
             Spacer(minLength: 0)
+            if showAnalysis {
+                AnalysisPanelView(game: game)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            } else if showHistory {
+                HistoryView(history: game.history)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+            tabBarView
         }
         .background(Color.nimBackground.ignoresSafeArea())
-        .safeAreaInset(edge: .bottom, spacing: 0) { tabBarView }
-        .overlay(alignment: .bottom) { expandablePanel }
         .overlay { if game.isGameOver { gameOverOverlay } }
         .navigationTitle("Nim")
         .navigationBarTitleDisplayMode(.inline)
@@ -147,20 +153,7 @@ struct GameView: View {
         }
     }
 
-    @ViewBuilder
-    var expandablePanel: some View {
-        if showAnalysis {
-            AnalysisPanelView(game: game)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .padding(.bottom, 50)
-        } else if showHistory {
-            HistoryView(history: game.history)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .padding(.bottom, 50)
-        }
-    }
-
-    func tabBtn(_ title: String, icon: String, active: Bool, action: @escaping () -> Void) -> some View {
+func tabBtn(_ title: String, icon: String, active: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(spacing: 3) {
                 Image(systemName: icon).font(.system(size: 17))
