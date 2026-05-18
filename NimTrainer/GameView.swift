@@ -13,33 +13,33 @@ struct GameView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            topBar
+        GeometryReader { geo in
             VStack(spacing: 0) {
-                pilesArea
-                movePanel
-                Spacer(minLength: 0)
+                topBar
+                ZStack(alignment: .bottom) {
+                    VStack(spacing: 0) {
+                        pilesArea
+                        movePanel
+                        Spacer(minLength: 0)
+                    }
+                    if showAnalysis {
+                        AnalysisPanelView(game: game)
+                            .frame(maxHeight: geo.size.height * 0.38)
+                            .transition(.opacity)
+                    } else if showHistory {
+                        HistoryView(history: game.history)
+                            .frame(maxHeight: geo.size.height * 0.33)
+                            .transition(.opacity)
+                    }
+                }
+                tabBarView
             }
-            .overlay(alignment: .bottom) { expandablePanel }
-            .clipped()
-            tabBarView
         }
         .background(Color.nimBackground.ignoresSafeArea())
         .overlay { if game.isGameOver { gameOverOverlay } }
         .navigationTitle("Nim")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { game.triggerBotIfNeeded() }
-    }
-
-    @ViewBuilder
-    var expandablePanel: some View {
-        if showAnalysis {
-            AnalysisPanelView(game: game)
-                .transition(.opacity)
-        } else if showHistory {
-            HistoryView(history: game.history)
-                .transition(.opacity)
-        }
     }
 
     // MARK: Top bar
