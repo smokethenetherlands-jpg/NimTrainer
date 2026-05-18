@@ -19,9 +19,12 @@ struct GameView: View {
                 topBar
                 pilesArea
                 movePanel
-                bottomSection
+                Spacer(minLength: 0)
             }
             if game.isGameOver { gameOverOverlay }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            bottomSection
         }
         .navigationTitle("Nim")
         .navigationBarTitleDisplayMode(.inline)
@@ -84,7 +87,7 @@ struct GameView: View {
             }
             .padding(.horizontal, 16).padding(.vertical, 12)
         }
-        .frame(height: 310)
+        .frame(maxHeight: 300)
         .background(Color.nimBackground)
     }
 
