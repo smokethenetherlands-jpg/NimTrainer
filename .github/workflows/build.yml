@@ -13,31 +13,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
-
-      - name: Build archive
+      - name: Build (no signing)
         working-directory: NimTrainer
         run: |
-          xcodebuild archive \
+          xcodebuild build \
             -project NimTrainer.xcodeproj \
             -scheme NimTrainer \
             -destination "generic/platform=iOS" \
-            -archivePath "$RUNNER_TEMP/NimTrainer.xcarchive" \
+            -derivedDataPath /tmp/DerivedData \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=NO \
-            -allowProvisioningUpdates || true
+            ONLY_ACTIVE_ARCH=NO
 
       - name: Package IPA
         run: |
-          APP=$(find "$RUNNER_TEMP/NimTrainer.xcarchive" -name "*.app" | head -1)
+          APP=$(find /tmp/DerivedData -name "NimTrainer.app" \
+                  -not -path "*/Index.noindex/*" \
+                  -not -path "*/SourcePackages/*" | head -1)
+          echo "App path: $APP"
           mkdir -p Payload
           cp -r "$APP" Payload/
           zip -qr NimTrainer.ipa Payload
           rm -rf Payload
-          echo "IPA size: $(du -sh NimTrainer.ipa | cut -f1)"
+          echo "Done: $(du -sh NimTrainer.ipa | cut -f1)"
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
