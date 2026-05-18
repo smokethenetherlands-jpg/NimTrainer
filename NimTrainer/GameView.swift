@@ -13,19 +13,15 @@ struct GameView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.nimBackground.ignoresSafeArea()
-            VStack(spacing: 0) {
-                topBar
-                pilesArea
-                movePanel
-                Spacer(minLength: 0)
-            }
-            if game.isGameOver { gameOverOverlay }
+        VStack(spacing: 0) {
+            topBar
+            pilesArea
+            movePanel
+            Spacer(minLength: 0)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            bottomSection
-        }
+        .background(Color.nimBackground.ignoresSafeArea())
+        .safeAreaInset(edge: .bottom, spacing: 0) { bottomSection }
+        .overlay { if game.isGameOver { gameOverOverlay } }
         .navigationTitle("Nim")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { game.triggerBotIfNeeded() }
