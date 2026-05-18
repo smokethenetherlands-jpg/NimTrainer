@@ -8,7 +8,11 @@ struct MoveRecord: Identifiable {
     let isBot: Bool
 }
 
-@MainActor
+struct NimHint {
+    let pileIndex: Int
+    let amount: Int
+}
+
 class GameState: ObservableObject {
     @Published var piles: [Int]
     @Published var currentPlayerIndex: Int = 0
@@ -18,7 +22,7 @@ class GameState: ObservableObject {
     @Published var selectedPile: Int?     = nil
     @Published var takeAmount: Int        = 1
     @Published var isBotThinking: Bool    = false
-    @Published var lastHint: (pileIndex: Int, amount: Int)? = nil
+    @Published var lastHint: NimHint?     = nil
 
     let settings: GameSettings
     let players: [PlayerConfig]
@@ -53,8 +57,10 @@ class GameState: ObservableObject {
     }
 
     func showHint() {
-        lastHint = NimBot.smartMove(piles: piles, isMisere: settings.isMisere)
-        if let h = lastHint { selectedPile = h.pileIndex; takeAmount = h.amount }
+        guard let m = NimBot.smartMove(piles: piles, isMisere: settings.isMisere) else { return }
+        lastHint     = NimHint(pileIndex: m.pileIndex, amount: m.amount)
+        selectedPile = m.pileIndex
+        takeAmount   = m.amount
     }
 
     // MARK: - Core
@@ -62,11 +68,12 @@ class GameState: ObservableObject {
     func executeMove(pileIndex: Int, amount: Int) {
         let mover = players[currentPlayerIndex]
         withAnimation(.spring(response: 0.3)) { piles[pileIndex] -= amount }
-        history.append(MoveRecord(playerName: mover.name, pileIndex: pileIndex, amount: amount, isBot: mover.isBot))
+        history.append(MoveRecord(playerName: mover.name, pileIndex: pileIndex,
+                                  amount: amount, isBot: mover.isBot))
         selectedPile = nil; takeAmount = 1; lastHint = nil
 
         if piles.allSatisfy({ $0 == 0 }) {
-            isGameOver = true
+            isGameOver    = true
             winnerMessage = buildWinnerMessage(mover: mover)
         } else {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.count
@@ -88,9 +95,11 @@ class GameState: ObservableObject {
     func triggerBotIfNeeded() {
         guard !isGameOver, currentPlayer.isBot, !isBotThinking else { return }
         isBotThinking = true
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_200_000_000)
-            guard !self.isGameOver else { self.isBotThinking = false; return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+            guard let self = self, !self.isGameOver else {
+                self?.isBotThinking = false
+                return
+            }
             let move: (pileIndex: Int, amount: Int)?
             switch self.currentPlayer.botDifficulty {
             case .random: move = NimBot.randomMove(piles: self.piles)
