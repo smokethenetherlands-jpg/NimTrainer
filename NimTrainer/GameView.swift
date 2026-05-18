@@ -15,16 +15,12 @@ struct GameView: View {
     var body: some View {
         VStack(spacing: 0) {
             topBar
-            pilesArea
-            movePanel
-            Spacer(minLength: 0)
-            if showAnalysis {
-                AnalysisPanelView(game: game)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            } else if showHistory {
-                HistoryView(history: game.history)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            VStack(spacing: 0) {
+                pilesArea
+                movePanel
+                Spacer(minLength: 0)
             }
+            .overlay(alignment: .bottom) { expandablePanel }
             tabBarView
         }
         .background(Color.nimBackground.ignoresSafeArea())
@@ -32,6 +28,17 @@ struct GameView: View {
         .navigationTitle("Nim")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { game.triggerBotIfNeeded() }
+    }
+
+    @ViewBuilder
+    var expandablePanel: some View {
+        if showAnalysis {
+            AnalysisPanelView(game: game)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        } else if showHistory {
+            HistoryView(history: game.history)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
 
     // MARK: Top bar
